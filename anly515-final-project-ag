@@ -26,15 +26,20 @@ new_tech <- read_excel("new_tech.xls", col_types = c("date",
                                                      "numeric", "numeric"))
 View(new_tech)
 
+#removing rows with any NA data using na.omit
 
 old_tech<-na.omit(old_tech)
 new_tech<-na.omit(new_tech)
+
+#storing date of stock prices in separate variable, for remerging later, or use in timeseries function
 
 date_old<-old_tech$Date
 date_new<-new_tech$Date
 
 str(date_old)
 str(date_new)
+
+#removing daily volume field from each portfolio
 
 old_tech2<-cbind(old_tech$Date, old_tech$msft_price, old_tech$adbe_price, old_tech$crm_price)
 colnames(old_tech2)<-c("Date","msft_price","adbe_price","crm_price")
@@ -43,6 +48,7 @@ colnames(old_tech2)<-c("Date","msft_price","adbe_price","crm_price")
 new_tech2<-cbind(new_tech$Date, new_tech$fb_price, new_tech$nflx_price, new_tech$tsla_price)
 colnames(new_tech2)<-c("Date","fb_price","nflx_price","tsla_price")
 
+#creating timeseries of each portfolio here, using date stored above as charvec
 
 oldTS<-timeSeries(old_tech2[,-1], charvec = date_old)
 newTS<-timeSeries(new_tech2[,-1], charvec = date_new)
@@ -50,10 +56,12 @@ newTS<-timeSeries(new_tech2[,-1], charvec = date_new)
 head(oldTS)
 head(newTS)
 
-
+#plotting timeseries of both old and new portfolios
 
 plot(oldTS)
 plot(newTS)
+
+
 
 oldTechLoss<-as.data.frame(na.omit(-1.0*diff(log(oldTS))*100.0))
 colnames(oldTechLoss)<-c("msft","adbe","crm")
