@@ -73,6 +73,9 @@ colnames(newTechLoss)<-c("fb","nflx","tsla")
 head(oldTechLoss)
 head(newTechLoss)
 
+#Plot ACF and PACF functions for each of the assets, and determine the rank of the ARIMA model.
+#using par(mfrow) to make sure all 6 plots are visible in one place 
+
 par(mfrow = c(3,2))
 
 acf(oldTechLoss$msft,na.action = na.pass)
