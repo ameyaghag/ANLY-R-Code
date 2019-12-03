@@ -1,8 +1,8 @@
-#define working directory here
-
+#Working Directory
 getwd()
 setwd("/Users/ameyaghag/Documents/Harrisburg University/ANLY 515/Final Project")
 
+#installing and loading necessary packages
 install.packages("QRM")
 library(QRM)
 library(readxl)
@@ -11,6 +11,9 @@ library(FRAPO)
 library(fGarch)
 library(readr)
 
+#reading data from source of both data sets
+#old tech data set contains stock prices of msft,adobe and salesforce over last 5 years
+#new tech data set contains stock prices of fb, tesla and netflix over last 5 years
 
 library(readxl)
 old_tech <- read_excel("old_tech.xls", col_types = c("date", 
