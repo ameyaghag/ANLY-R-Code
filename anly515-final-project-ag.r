@@ -1,4 +1,4 @@
-#Working Directory
+#this is new working directory
 getwd()
 setwd("/Users/ameyaghag/Documents/Harrisburg University/ANLY 515/Final Project")
 
@@ -61,7 +61,7 @@ head(newTS)
 plot(oldTS)
 plot(newTS)
 
-
+#Calculating losses of each portfolio and save the results as one data frame.
 
 oldTechLoss<-as.data.frame(na.omit(-1.0*diff(log(oldTS))*100.0))
 colnames(oldTechLoss)<-c("msft","adbe","crm")
