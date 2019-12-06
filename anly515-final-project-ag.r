@@ -140,6 +140,8 @@ predict(arimaNFLX, n.ahead=2)
 class(arimaTSLA)
 predict(arimaTSLA, n.ahead=2)
 
+#Using ARMA 00 and Garch 11 to predict losses one period ahead
+
 gMSFT<-garchFit(~arma(0,0)+garch(1,1), data=oldTechLoss$msft)
 gADBE<-garchFit(~arma(0,0)+garch(1,1), data=oldTechLoss$adbe)
 gCRM<-garchFit(~arma(0,0)+garch(1,1), data=oldTechLoss$crm)
@@ -157,7 +159,7 @@ predict(gFB, n.ahead = 1)
 predict(gNFLX, n.ahead = 1)
 predict(gTSLA, n.ahead = 1)
 
-
+#defining function for calculating ES using garch at 95% confidence
 
 ESgarch <- function(y, p = 0.95){
   gfit <- garchFit(formula = ~garch(1, 1), data = y,
@@ -187,6 +189,8 @@ nflxES
 tslaES<-ESgarch(na.omit(newTechLoss$tsla))
 tslaES
 
+#calculating returns of all stocks
+
 msftReturns<-returnseries(old_tech$msft_price)
 
 adbeReturns<-returnseries(old_tech$adbe_price)
@@ -205,10 +209,13 @@ tslaReturns<-returnseries(new_tech$tsla_price)
 newTechReturns<-cbind(fbReturns,nflxReturns,tslaReturns)
 head(newTechReturns)
 
+#covariance matrix by using cov() function and use use="pairwise.complete.obs" specification
 
 library(FRAPO)
 oldTechCov<-cov(oldTechReturns, use="pairwise.complete.obs")
 oldTechCov
+
+
 
 library(FRAPO)
 oldGMV<-PGMV(oldTechCov)
@@ -244,6 +251,7 @@ FBreturn<-(-1)*newTechLoss$fb
 NFLXreturn<-(-1)*newTechLoss$nflx
 TSLAreturn<-(-1)*newTechLoss$tsla
 
+#expected monthly return of the GMVP portfolio? 
 
 portretNew<-FBreturn*wFB+NFLXreturn*wNFLX+TSLAreturn*wTSLA
 mean(portretNew)
@@ -255,13 +263,20 @@ newTechVariance
 
 #for Old Tech
 
+#data frame to estimate garch model for each of the assets
 
 gfitOLD<-lapply(oldTechLoss,garchFit,formula=~arma(0,0)+garch(1,1),cond.dist="std",trace=FALSE)
 gfitOLD
 
+#varible to generate one-step-ahead forecasts of the conditional variance (Standard Deviation)
+
 gprog<-unlist(lapply(gfitOLD,function(x) predict(x,n.ahead = 1)[3]))
 
+#Estimate degrees-of-freedom parameters for the garch model of each asset. 
+
 gshape<-unlist(lapply(gfitOLD, function(x) x@fit$coef[5]))
+
+#conditional standardized residuals for each asset as save as a matrix.
 
 gresid<-as.matrix(data.frame(lapply(gfitOLD,function(x) x@residuals / sqrt(x@h.t))))
 head(gresid)
@@ -277,7 +292,13 @@ library(fGarch)
 
 library(QRM)
 
+#Estimate Student's t copula model based on Kendall's rank correlations. 
+
 cop <- fit.tcopula(Udata = U, method = "Kendall")
+
+#Use the dependence structure determined by the estimated copula 
+#     for generating 100,000 data sets of random variates for the pseudo-uniformly 
+#     distributed variables. 
 
 rcop <- rcopula.t(100000, df = cop$nu, Sigma = cop$P)
 head(rcop)
@@ -287,6 +308,7 @@ qcop <- sapply(1:3, function(x) qstd(rcop[, x], nu = gshape[x]))
 head(qcop)
 hist(qcop)
 
+#Create a matix of 1 period ahead predictions of standard deviations. 
 
 ht.mat <- matrix(gprog, nrow = 100000, ncol = ncol(oldTechLoss), byrow = TRUE)
 head(ht.mat)
@@ -305,7 +327,7 @@ OLDpfall.var95 #1.30
 
 -----------------------------------------------------
   
-#for NEW Tech
+#repeating procedure for NEW Tech
   
 gfitNEW<-lapply(newTechLoss,garchFit,formula=~arma(0,0)+garch(1,1),cond.dist="std",trace=FALSE)
 gfitNEW
