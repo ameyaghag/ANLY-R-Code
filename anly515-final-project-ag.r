@@ -109,6 +109,8 @@ mean(newTechLoss$tsla,na.rm=TRUE)
 install.packages("forecast")
 library(forecast)
 
+#use auto arima from package forecast to look at rank of arima model
+
 arimaMSFT<-auto.arima(oldTechLoss$msft)
 arimaADBE<-auto.arima(oldTechLoss$adbe)
 arimaCRM<-auto.arima(oldTechLoss$crm)
@@ -116,6 +118,8 @@ arimaCRM<-auto.arima(oldTechLoss$crm)
 arimaFB<-auto.arima(newTechLoss$fb)
 arimaNFLX<-auto.arima(newTechLoss$nflx)
 arimaTSLA<-auto.arima(newTechLoss$tsla)
+
+#using auto arima and predicting losses for 2 ahead looking periods
 
 class(arimaMSFT)
 predict(arimaMSFT, n.ahead=2)
